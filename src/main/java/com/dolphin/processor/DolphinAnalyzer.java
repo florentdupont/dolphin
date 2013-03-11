@@ -102,7 +102,9 @@ public class DolphinAnalyzer {
 		businessReport.writeToCSV(logPath);
 
 		// et en HTML
-		businessReport.writeToHtml(logPath);
+		//businessReport.writeToHtml(logPath);
+		
+		businessReport.writeToXls(logPath);
 		
 		if(debug) {
 			businessReport.writeToConsole();

@@ -18,8 +18,32 @@ import com.dolphin.processor.DolphinAnalyzer;
  * Lancement se fait : 
  * mvn package -DskipTests=true com.dolphin:dolphin:dolphin
  * 
+ * Deux possibilité de parametrage
+ * 
+ * Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite analyser
+ * 
+ * <plugin>
+ *	 <groupId>com.dolphin</groupId>
+ *		<artifactId>dolphin</artifactId>
+ *		<version>1.0</version>
+ *		 <configuration>
+ *  		<logpath>/Users/flo/projets/annotations/export</logpath>
+ *  		<namespaceprefix>com.mypackage.test</namespaceprefix>
+ *  	</configuration>
+ *  </plugin>
+ * 
+ * Sans configuration Maven :
+ * Il faut dans ce cas définir les variables en ligne de commande
+ * mvn package -DskipTests=true com.dolphin:dolphin:dolphin -PdolphinPrefix=com.mypackage.test
+ * 
+ * L'export se fera dans le répertoire courant sans configuration manve.
+ * 
+ * 
+ * 
  * Fonctionne sur un projet final (artefact type JAR) ou sur un parent (qui crée des modules de types JAR
  * sur 1 ou plusieurs niveaux)
+ * 
+ * 
  *
  * @goal dolphin
  * @phase package
@@ -45,14 +69,14 @@ public class DolphinMojo extends AbstractMojo {
     /**
     * Mon paramètre.
     * @parameter expression="${logpath}"
-    * @required
+    * 
     */
     private String logpath;	
     
     /**
-     * préfixe des namespace de classes à scanner
+     * préfixe des namespace de classes à scanner.
      * @parameter expression="${namespaceprefix}"
-     * @required
+     *
      */
      private String namespaceprefix;	
      
@@ -63,10 +87,7 @@ public class DolphinMojo extends AbstractMojo {
         
         
         for(MavenProject reactproject : reactorProjects) {
-        	
-    		//System.out.println("Maven project : " + reactproject.getName());
-    		//System.out.println("Maven project : " + reactproject.getArtifact().getType());
-    		
+        	 		
     		if("jar".equals(reactproject.getArtifact().getType()) || "ejb".equals(reactproject.getArtifact().getType())) {
         		//System.out.println("JAR : " + reactproject.getName());
     			try {
@@ -93,6 +114,19 @@ public class DolphinMojo extends AbstractMojo {
         
         for(URL url : urls) {
         	System.out.println("artefacts tirés : " + url);
+        }
+        
+        
+        // si le logpath n'est pas renseigné alors on prend le répertoire par défaut
+        if(logpath == null) {
+        	logpath = System.getProperty("user.dir");
+        }
+        
+        if(namespaceprefix == null) {
+        	namespaceprefix = System.getProperty("dolphinPrefix");
+        }
+        if(namespaceprefix == null) {
+        	namespaceprefix = "";
         }
         
         final DolphinAnalyzer analyzer = new DolphinAnalyzer(urls, namespaceprefix, logpath);
