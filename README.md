@@ -16,6 +16,7 @@ Cette annotation porte 2 attributs :
 - _id_ représente l'identifiant de la règle
 - _version_ représente la version de la règle.
 
+Par exemple :
 
     @BusinessRule(id="RG_0009", version="0.1")
     public void myMethod() {
