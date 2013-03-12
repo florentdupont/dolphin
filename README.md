@@ -110,7 +110,7 @@ Lancement se fait :
 
 Deux possibilités de parametrage
  
-Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite analyser
+Avec Configuration Maven : a d√©finir dans le POM du projet que l'on souhaite analyser
  
     <plugin>
       <groupId>com.dolphin</groupId>
@@ -123,7 +123,7 @@ Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite ana
      </plugin>
   
 Sans configuration Maven :
-Il faut dans ce cas définir les variables en ligne de commande
+Il faut dans ce cas d√©finir les variables en ligne de commande
 
     mvn package -DskipTests=true dolphin:dolphin -PdolphinPrefix=com.mypackage.test
 
