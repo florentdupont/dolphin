@@ -34,7 +34,11 @@ import com.dolphin.processor.DolphinAnalyzer;
  * 
  * Sans configuration Maven :
  * Il faut dans ce cas définir les variables en ligne de commande
- * mvn package -DskipTests=true com.dolphin:dolphin:dolphin -PdolphinPrefix=com.mypackage.test
+ * mvn package -DskipTests=true com.dolphin:dolphin-maven-plugin:dolphin -PdolphinPrefix=com.mypackage.test
+ * 
+ * ou
+ * 
+ * mvn package -DskipTests=true dolphin:dolphin -PdolphinPrefix=com.mypackage.test
  * 
  * L'export se fera dans le répertoire courant sans configuration manve.
  * 
