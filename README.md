@@ -17,12 +17,12 @@ Cette annotation porte 2 attributs :
 - _version_ représente la version de la règle.
 
 Par exemple :
-
-    @BusinessRule(id="RG_0009", version="0.1")
-    public void myMethod() {
-      // blabla
-    }
-
+```java
+@BusinessRule(id="RG_0009", version="0.1")
+public void myMethod() {
+  // blabla
+}
+```
 
 Si plusieurs règles sont appliquées sur une méthode, alors il faut indiquer les différents
 identifiants en spécifiant les valeurs multiples entre accolades `{}` :
@@ -30,10 +30,12 @@ identifiants en spécifiant les valeurs multiples entre accolades `{}` :
 Dans l'exemple ci dessous, ```myMethod()``` implémente la règle RG_0009 en version 0.1 et la
 règle RG_0010 en version 0.2.
 
-    @BusinessRule(id={"RG_0009", "RG_0010"}, version={"0.1", "0.2"})
-    public void myMethod() {
-
-    }
+```java
+@BusinessRule(id={"RG_0009", "RG_0010"}, version={"0.1", "0.2"})
+public void myMethod() {
+...
+}
+```
 
 **Bonne pratique** : il est préférable de ne pas créer de constantes pour les business
 rules. En effet, l'utilisation de constante n'apporte rien quant à la lecture. Par exemple :
@@ -51,24 +53,29 @@ L'annotation se porte sur une méthode ou une classe (ou les deux).
 
 Par exemple, une méthode en cours de développement :
 
-    @DevelopmentStatus(StatusType.ONGOING)
-    public void myMethod() {
-    
-    }
+```java
+@DevelopmentStatus(StatusType.ONGOING)
+public void myMethod() {
+...    
+}
+```
 
 On peut ainsi avoir une vision générale, mais spécifier le status d'une méthode en particulier.
 C'est le cas dans l'exemple ci dessous : La classe est en status en cours `ONGOING`, c'est à
 dire que ```myMethod1()``` prend le status indiqué sur la classe (donc `ONGOING`), alors que
 ```myMethod2()``` posséde le status qui lui est propre (donc `DONE`).
 
-    @DevelopmentStatus(StatusType.ONGOING)
-    public class MyClass {
+```java
+@DevelopmentStatus(StatusType.ONGOING)
+public class MyClass {
+
     public void myMethod1() {...}
     
     @DevelopmentStatus(StatusType.DONE)
     public void myMethod2() {...}
     
-    }
+}
+```
 
 **Utilisation conjointe**
 
@@ -77,8 +84,9 @@ Bien que les deux annotations peuvent être utilisées indépendamment, l'intér
 l'implémentation des règles métier. L'exemple ci-dessous montre un exemple d'utilisation
 conjointe.
 
-    @DevelopmentStatus(StatusType.ONGOING)
-    public class MyClass {
+```java
+@DevelopmentStatus(StatusType.ONGOING)
+public class MyClass {
     
     @BusinessRule(id="RG_0001", version="1.0")
 
@@ -88,7 +96,9 @@ conjointe.
     @DevelopmentStatus(StatusType.DONE)
     public void myMethod2() {...}
     
-    }
+}
+```
+
 
 **A savoir**
 
@@ -107,22 +117,26 @@ Utilisation
 
 Lancement se fait : 
 
-    mvn package -DskipTests=true dolphin:dolphin
+```
+mvn package -DskipTests=true dolphin:dolphin
+```
 
 Deux possibilités de parametrage
  
 Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite analyser
- 
-    <plugin>
-      <groupId>com.dolphin</groupId>
-      <artifactId>dolphin</artifactId>
-      <version>1.0</version>
-      <configuration>
-        <logpath>/Users/flo/projets/annotations/export</logpath>
-        <namespaceprefix>com.mypackage.test</namespaceprefix>
-      </configuration>
-     </plugin>
-  
+
+```xml
+<plugin>
+  <groupId>com.dolphin</groupId>
+  <artifactId>dolphin</artifactId>
+  <version>1.0</version>
+  <configuration>
+    <logpath>/Users/flo/projets/annotations/export</logpath>
+    <namespaceprefix>com.mypackage.test</namespaceprefix>
+   </configuration>
+</plugin>
+```  
+
 Sans configuration Maven :
 Il faut dans ce cas définir les variables en ligne de commande
 
@@ -136,8 +150,10 @@ Pour installer dans le repo local : ```mvn install -DskipTests```
 
 Pour que le plugin soit utilisable en mode préfixe, il faut ajouter les lignes suivantes dans le settings.xml du poste local. 
 
-    <pluginGroups>
-      <pluginGroup>com.dolphin</pluginGroup>
-    </pluginGroups>
+```xml
+<pluginGroups>
+  <pluginGroup>com.dolphin</pluginGroup>
+</pluginGroups>
+```
 
 Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:dolphin```    
