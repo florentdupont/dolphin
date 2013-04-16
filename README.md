@@ -140,7 +140,7 @@ Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite an
 Sans configuration Maven :
 Il faut dans ce cas définir les variables en ligne de commande
 
-    mvn package -DskipTests=true dolphin:dolphin -PdolphinPrefix=com.mypackage.test
+    mvn package -DskipTests=true dolphin:dolphin -DdolphinPrefix=com.mypackage.test
 
 
 Installation
