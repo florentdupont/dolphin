@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BusinessRule {
 	
-    public abstract String[] id() default {};
-	public abstract String[] version() default {};
+    public String[] id() default {};
+	public String[] version() default {};
 	
 }

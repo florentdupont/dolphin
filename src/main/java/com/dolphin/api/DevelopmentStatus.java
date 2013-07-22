@@ -40,6 +40,6 @@ public @interface DevelopmentStatus {
 	 * @return le status de développement.
 	 * @see StatusType
 	 */
-	public abstract StatusType value();
+	public StatusType value();
 	
 }
