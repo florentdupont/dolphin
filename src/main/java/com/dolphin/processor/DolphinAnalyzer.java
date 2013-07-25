@@ -37,18 +37,17 @@ public class DolphinAnalyzer {
 	
 	private boolean debug;
 	
-	public DolphinAnalyzer(List<URL> jarPaths, String namespacefilter,
-			String logPath) {
-		this(jarPaths, namespacefilter, logPath, false);
-		
-	}
+	private String type;
 	
-	public DolphinAnalyzer(List<URL> jarPaths, String namespacefilter, String logPath, boolean debug) {
+	
+	
+	public DolphinAnalyzer(List<URL> jarPaths, String namespacefilter, String logPath, String type, boolean debug) {
 		this.jarPaths = jarPaths;
 		this.namespacePrefixFilter = namespacefilter;
 		this.logPath = logPath;
 		this.businessReport = new BusinessReport();
 		this.debug = debug;
+		this.type = type;
 	}
 	
 	
@@ -56,6 +55,11 @@ public class DolphinAnalyzer {
 	 * 
 	 */
 	public void analyseClasses() {
+		
+		System.out.println(jarPaths);
+		System.out.println(namespacePrefixFilter);
+		System.out.println(debug);
+		System.out.println(type);
 		
 		for (URL path : jarPaths) {
 			try {
@@ -98,14 +102,26 @@ public class DolphinAnalyzer {
 		}
 		
 		
-		// ecrit en CSV
-		businessReport.writeToCSV(logPath);
+		
+		if("all".equals(type)) {
+			// ecrit en CSV
+			businessReport.writeToCSV(logPath);
 
-		// et en HTML
-		//businessReport.writeToHtml(logPath);
+			businessReport.writeToHtml(logPath);
+			
+			businessReport.writeToXls(logPath);
+		}
+		else if("html".equals(type)) {
+			businessReport.writeToHtml(logPath);
+		}
+		else if("xls".equals(type)) {
+			businessReport.writeToXls(logPath);
+		}
+		else if("csv".equals(type)) {
+			businessReport.writeToXls(logPath);
+		}
 		
-		businessReport.writeToXls(logPath);
-		
+		// mode debug
 		if(debug) {
 			businessReport.writeToConsole();
 		}
