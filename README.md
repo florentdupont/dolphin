@@ -2,6 +2,7 @@ Dolphin
 =======
 
 Dolphin est un plugin **Maven** d'analyse d'annotations de suivi des exigences métier dans le code Java.
+Il permet d'assurer la traçabilité de règles métier entre les SFD et le code. Il permet de connaitre quelle méthode implémente une règle métier particulère et le niveau d'avancement de celle-ci.
 
 
 Annotation du code
@@ -129,10 +130,12 @@ Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite an
 <plugin>
   <groupId>com.dolphin</groupId>
   <artifactId>dolphin</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <configuration>
-    <logpath>/Users/flo/projets/annotations/export</logpath>
+    <path>/Users/flo/projets/annotations/export</path>
     <namespaceprefix>com.mypackage.test</namespaceprefix>
+    <type>all</type>
+    <debug>true</debug>
    </configuration>
 </plugin>
 ```  
@@ -140,7 +143,7 @@ Avec Configuration Maven : a définir dans le POM du projet que l'on souhaite an
 Sans configuration Maven :
 Il faut dans ce cas définir les variables en ligne de commande
 
-    mvn package -DskipTests=true dolphin:dolphin -DdolphinPrefix=com.mypackage.test
+    mvn package -DskipTests=true dolphin:dolphin -DdolphinPrefix=com.mypackage.test -DdolphinPath=/var/tmp -DdolphinType=all -DdolphinDebug=true
 
 
 Installation
@@ -156,4 +159,4 @@ Pour que le plugin soit utilisable en mode préfixe, il faut ajouter les lignes 
 </pluginGroups>
 ```
 
-Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:dolphin```    
+Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:1.1:dolphin```    
