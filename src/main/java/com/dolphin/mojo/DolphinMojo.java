@@ -25,10 +25,12 @@ import com.dolphin.processor.DolphinAnalyzer;
  * <plugin>
  *	 <groupId>com.dolphin</groupId>
  *		<artifactId>dolphin</artifactId>
- *		<version>1.0</version>
+ *		<version>1.1</version>
  *		 <configuration>
- *  		<logpath>/Users/flo/projets/annotations/export</logpath>
+ *  		<path>/Users/flo/projets/annotations/export</path>
  *  		<namespaceprefix>com.mypackage.test</namespaceprefix>
+ *          <type>html</type>
+ *          
  *  	</configuration>
  *  </plugin>
  * 
@@ -71,11 +73,11 @@ public class DolphinMojo extends AbstractMojo {
     private List<MavenProject> reactorProjects;
     
     /**
-    * Mon paramètre.
-    * @parameter expression="${logpath}"
+    * chemin d'export.
+    * @parameter expression="${path}"
     * 
     */
-    private String logpath;	
+    private String path;	
     
     /**
      * préfixe des namespace de classes à scanner.
@@ -83,6 +85,22 @@ public class DolphinMojo extends AbstractMojo {
      *
      */
      private String namespaceprefix;	
+     
+     
+     /**
+      * type d'export : all(default) xls, html, csv 
+      * @parameter expression="${type}"
+      *
+      */
+      private String type;	
+      
+      
+      /**
+       * mode debug 
+       * @parameter expression="${debug}"
+       *
+       */
+       private Boolean debug;	
      
   
     public void execute() throws MojoExecutionException {
@@ -117,15 +135,21 @@ public class DolphinMojo extends AbstractMojo {
         
         
         for(URL url : urls) {
-        	System.out.println("artefacts tirés : " + url);
+        	getLog().info("artefacts tirés : " + url);
         }
         
         
-        // si le logpath n'est pas renseigné alors on prend le répertoire par défaut
-        if(logpath == null) {
-        	logpath = System.getProperty("user.dir");
+        // si le logpath n'est pas renseigné alors on prend le répertoire renseigné dans la variable dolphinPath
+        if(path == null) {
+        	path = System.getProperty("dolphinPath");
+        }
+        // si le path est toujours nul alors, on prend le répertoire courant.
+        if(path == null) {
+        	path = System.getProperty("user.dir") + File.separator + "target" + File.separator + "dolphin" + File.separator;
         }
         
+        // si le namespace prefix n'est pas spécifié dans la config maven, alors on va le chercher dans 
+        // la variable JVM dolphinPrefix
         if(namespaceprefix == null) {
         	namespaceprefix = System.getProperty("dolphinPrefix");
         }
@@ -133,7 +157,28 @@ public class DolphinMojo extends AbstractMojo {
         	namespaceprefix = "";
         }
         
-        final DolphinAnalyzer analyzer = new DolphinAnalyzer(urls, namespaceprefix, logpath);
+        if(type == null) {
+        	type = System.getProperty("dolphinType");
+        }
+        if(type == null) {
+        	type = "all";
+        }
+        
+        if(debug == null) {
+        	debug = Boolean.valueOf(System.getProperty("dolphinDebug"));
+        }
+        if(type == null) {
+        	debug = false;
+        }
+        
+        
+        getLog().info("Exporting to path: " + path);
+        getLog().info("Export type: " + type);
+        getLog().info("namespace prefix to analyze :" + namespaceprefix);
+        if(debug)
+        	getLog().info("MODE DEBUG");
+        
+        final DolphinAnalyzer analyzer = new DolphinAnalyzer(urls, namespaceprefix, path, type, debug);
 	    analyzer.analyseClasses();
         
     }
