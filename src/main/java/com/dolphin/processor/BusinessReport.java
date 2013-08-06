@@ -377,7 +377,7 @@ public class BusinessReport {
 			List<String> strs = IOUtils.readLines(indexStream);
 
 			String lineFormat = 
-					"\"class\": \"{0}\", \"method\": \"{1}\", \"rule\": \"{2}\", \"version\": \"{3}\", \"status\": \"<span class=\\\"label {4}\\\">{5}</div>\"";
+					"\"class\": \"{0}\", \"method\": \"{1}\", \"rule\": \"{2}\", \"version\": \"{3}\", \"status\": \"<span class=\\\"label {4}\\\">{5}</span>\"";
 
 			StringBuffer sb = new StringBuffer();
 			for(String str : strs) {
