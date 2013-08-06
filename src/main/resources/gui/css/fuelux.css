@@ -5695,6 +5695,20 @@ textarea.span1,
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 
+
+/*AJOUTE PAR FLO*/
+.fuelux .progress-inverse .bar,
+.fuelux .progress .bar-inverse {
+  background-color: #363636;
+  background-image: -moz-linear-gradient(top, #363636, #363636);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#363636), to(#363636));
+  background-image: -webkit-linear-gradient(top, #363636, #363636);
+  background-image: -o-linear-gradient(top, #363636, #363636);
+  background-image: linear-gradient(to bottom, #363636, #363636);
+  background-repeat: repeat-x;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff363636', endColorstr='#ff363636', GradientType=0);
+}
+
 .fuelux .accordion {
   margin-bottom: 20px;
 }
