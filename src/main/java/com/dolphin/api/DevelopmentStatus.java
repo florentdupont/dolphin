@@ -8,13 +8,9 @@ import java.lang.annotation.Target;
 /**
  * 
  * Annotation de status de dévelopment.
- * Placé sur une classe, il indique le suivi du développement global pour toutes les méthodes
- * => Toutes les méthodes.
  * 
  * Placé sur une méthode, il indique le status spécifique de cette méthode.
  * 
- * Ainsi : On peut placer une classe : 
- * @DevelopmentStatus(ONGOING)
  * class Toto {
  * 
  * 	@DevelopmentStatus(DONE)
@@ -24,15 +20,13 @@ import java.lang.annotation.Target;
  * 
  * }
  * 
- * => maMethod2 aura un status ONGOING, hérité de la classe.
- * => maMathod aura un status DONE, indiqué sur la méthode.
+ * => maMethod2 aura aucun status.
+ * => maMathod aura un status DONE.
  * 
  * @author Florent Dupont
  *
  */
-// applicable sur Class, Method, partout quoi..
-// mais nous on le vérifiera seulement sur les classes et methodes
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DevelopmentStatus {
 	
