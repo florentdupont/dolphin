@@ -47,10 +47,7 @@ spécialement de sens en tant que signature de la classe. Elle n'aurait ici qu'u
 **Status de développement**
 
 L'annotation ```@DevelopmentStatus``` permet d'indiquer l'avancement d'un développement.
-L'annotation se porte sur une méthode ou une classe (ou les deux).
-
-- Sur une classe : toutes les méthodes de la classe auront le status indiqué par la classe.
-- Sur une méthode : le status indiqué sur la méthode sera prioritaire sur celui de la classe.
+L'annotation porte sur une méthode.
 
 Par exemple, une méthode en cours de développement :
 
@@ -61,22 +58,13 @@ public void myMethod() {
 }
 ```
 
-On peut ainsi avoir une vision générale, mais spécifier le status d'une méthode en particulier.
-C'est le cas dans l'exemple ci dessous : La classe est en status en cours `ONGOING`, c'est à
-dire que ```myMethod1()``` prend le status indiqué sur la classe (donc `ONGOING`), alors que
-```myMethod2()``` posséde le status qui lui est propre (donc `DONE`).
+Il existe 5 types de statut : 
 
-```java
-@DevelopmentStatus(StatusType.ONGOING)
-public class MyClass {
-
-    public void myMethod1() {...}
-    
-    @DevelopmentStatus(StatusType.DONE)
-    public void myMethod2() {...}
-    
-}
-```
+* TODO : méthode à implémenter
+* ONGOING : méthode en cours de développement
+* DONE : méthode implémentée, mais pas encore testée
+* TESTED : méthode testée unitairement. Passe les tests unitaires
+* INTEGRATED : méthode testée en intégration. Passe les tests d'intégration.
 
 **Utilisation conjointe**
 
@@ -86,7 +74,6 @@ l'implémentation des règles métier. L'exemple ci-dessous montre un exemple d'
 conjointe.
 
 ```java
-@DevelopmentStatus(StatusType.ONGOING)
 public class MyClass {
     
     @BusinessRule(id="RG_0001", version="1.0")
@@ -110,7 +97,7 @@ Plusieurs règles à suivre :
 
 - Utilisez toujours le formalisme suivant : RG_XXXX pour le nommage des règles.
 - les annotations sur les méthodes privées ne sont pas prises en compte.
-- Vérifiez, après avoir testé, que les @DevelopmentStatus soient bien placés en TESTED. (status final)
+- Vérifiez, après avoir testé, que les @DevelopmentStatus soient bien placés en TESTED. (statut final)
 
 
 Utilisation 
@@ -159,4 +146,4 @@ Pour que le plugin soit utilisable en mode préfixe, il faut ajouter les lignes 
 </pluginGroups>
 ```
 
-Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:1.1:dolphin```    
+Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:1.2:dolphin```    

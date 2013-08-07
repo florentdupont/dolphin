@@ -113,6 +113,8 @@ public class DolphinAnalyzer {
 		}
 		else if("html".equals(type)) {
 			businessReport.writeToHtml(logPath);
+			// en HTML, on sort également le XLS
+			businessReport.writeToXls(logPath);
 		}
 		else if("xls".equals(type)) {
 			businessReport.writeToXls(logPath);
@@ -146,30 +148,10 @@ public class DolphinAnalyzer {
 
 	public void analyseClass(ClassNode cn) {
 		
-		StatusType classDevelopmentStatus = null;
+	//	StatusType classDevelopmentStatus = null;
 		String classname = getClassName(cn.name);
 		
-		if(cn.visibleAnnotations != null) {
-			// récupère la classe
-			for (Object o : cn.visibleAnnotations) {
-				final AnnotationNode an = (AnnotationNode) o;
-				
-				// seul le developmentStatus nous intéresse ici
-				if (isDevelopmentAnnotation(an.desc)) {
-					// ici, on considère que la taille est bonne sinon, on aurait
-					// pas pu compiler !
-					String[] arrs = (String[]) an.values.get(1);
-					// com/dolphin/StatusType
-					// valeur du statusType que l'on peux récupérer sur
-					// l'énumération
-					StatusType status = StatusType.valueOf(arrs[1]);
-					classDevelopmentStatus = status;
-				}
-			}
-		}
-		
-		// a ce stade, il peut s'agir d'une class annotée avec un DevStatus ou pas
-		// et qui peut contenir des méthodes annotées ou pas.
+		// a ce stade, il peut s'agir d'une class qui peut contenir des méthodes annotées ou pas.
 		// donc il ne faut qu'on les ajoutes toutes
 
 		// récupère chaque méthode
@@ -184,15 +166,6 @@ public class DolphinAnalyzer {
 			// on ne prend la méthode en compte que si elle est publique
 			if((mn.access & Opcodes.ACC_PUBLIC) == 0) {
 				continue;
-			}
-			
-			// si la classe est annoté...alors toutes les méthodes hériteront de 
-			// ce status
-			if(classDevelopmentStatus != null ) {
-				// je met le status par défaut, hérité de la classe.
-				// si le status existe dans l'annotation, il sera alors écrasé spécifiquement
-				// a sa définition sur la méthode
-				businessReport.addLine(classname, methodname, classDevelopmentStatus);
 			}
 			
 			// s'il n'y a pas d'annotations, pas la peine de continuer,
@@ -249,13 +222,10 @@ public class DolphinAnalyzer {
 							
 							// s'il n'as pas déjà un devstatus, alors, on lui ajoute celui par défaut
 							if(!businessReport.hasDevStatus(classname, methodname)) {
-								if(classDevelopmentStatus != null) {
-									businessReport.addLine(classname, methodname, classDevelopmentStatus);
-								}
-								else {
-									// sinon j'en met un par défaut
-									businessReport.addLine(classname, methodname, StatusType.TODO);
-								}
+								
+								// sinon j'en met un par défaut
+								businessReport.addLine(classname, methodname, StatusType.TODO);
+								
 							}
 						}
 					
@@ -264,9 +234,6 @@ public class DolphinAnalyzer {
 				}
 			}
 		}
-
-	
-		
 
 	}
 	

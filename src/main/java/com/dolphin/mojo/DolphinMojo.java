@@ -25,7 +25,7 @@ import com.dolphin.processor.DolphinAnalyzer;
  * <plugin>
  *	 <groupId>com.dolphin</groupId>
  *		<artifactId>dolphin</artifactId>
- *		<version>1.1</version>
+ *		<version>1.2</version>
  *		 <configuration>
  *  		<path>/Users/flo/projets/annotations/export</path>
  *  		<namespaceprefix>com.mypackage.test</namespaceprefix>
@@ -167,7 +167,7 @@ public class DolphinMojo extends AbstractMojo {
         if(debug == null) {
         	debug = Boolean.valueOf(System.getProperty("dolphinDebug"));
         }
-        if(type == null) {
+        if(debug == null) {
         	debug = false;
         }
         

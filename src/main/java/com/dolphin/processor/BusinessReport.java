@@ -204,10 +204,6 @@ public class BusinessReport {
 
 
 
-
-
-
-
 		int rownum = 0;
 		HSSFRow row = sheet.createRow(rownum);
 		HSSFCell cell = row.createCell((short)0, HSSFCell.CELL_TYPE_STRING);
@@ -265,7 +261,10 @@ public class BusinessReport {
 			cell.setCellValue(l._status.toString());
 			HSSFCellStyle cellStyle = wb.createCellStyle();
 
-			if(l._status == StatusType.TESTED) {
+			if (l._status == StatusType.INTEGRATED) {
+				cellStyle.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
+			}
+			else if(l._status == StatusType.TESTED) {
 				cellStyle.setFillForegroundColor(HSSFColor.LIGHT_BLUE.index);
 			}
 			else if (l._status == StatusType.DONE) {
@@ -277,6 +276,7 @@ public class BusinessReport {
 			else if (l._status == StatusType.TODO) {
 				cellStyle.setFillForegroundColor(HSSFColor.RED.index);
 			}
+			
 			cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 			cell.setCellStyle(cellStyle);
 
@@ -314,6 +314,53 @@ public class BusinessReport {
 	 * @param path
 	 */
 	public void writeToHtml(String path) {
+		
+		List<Line> sortedLines = new ArrayList<Line>(lines.values());
+		Collections.sort(sortedLines);
+				
+		
+		int nbTodo       = 0; 
+		int nbOngoing    = 0; 
+		int nbDone       = 0; 
+		int nbTested     = 0;
+		int nbIntegrated = 0;
+		
+		
+		for(Line l : sortedLines) {
+			
+			if(l._status == StatusType.TODO) {
+				nbTodo += l._rules.size() == 0 ? 1 : l._rules.size();
+			}
+			if(l._status == StatusType.ONGOING) {
+				nbOngoing += l._rules.size() == 0 ? 1 : l._rules.size();
+			}
+			if(l._status == StatusType.DONE) {
+				nbDone += l._rules.size() == 0 ? 1 : l._rules.size();
+			}
+			if(l._status == StatusType.TESTED) {
+				nbTested += l._rules.size() == 0 ? 1 : l._rules.size();
+			}
+			if(l._status == StatusType.INTEGRATED) {
+				nbIntegrated += l._rules.size() == 0 ? 1 : l._rules.size();
+			}
+		}
+		
+		
+		int nbTotal = nbTodo + nbOngoing + nbDone + nbTested;
+		
+		// pourcentage à la louche
+		int pcTodo    = (int) (nbTodo * 100.0/ nbTotal);
+		int pcOngoing = (int) (nbOngoing *100.0/ nbTotal);
+		int pcDone    = (int) (nbDone * 100.0/ nbTotal);
+		int pcTested  = (int) (nbTested * 100.0/ nbTotal);
+		int pcIntegrated  = 100 - pcTodo - pcOngoing - pcDone - pcTested;
+		
+		//System.out.println("      TODO : " + nbTodo + "(" + pcTodo +"%)");
+		//System.out.println("   ONGOING : " + nbOngoing + "(" + pcOngoing +"%)");
+		//System.out.println("      DONE : " + nbDone + "(" + pcDone +"%)");
+		//System.out.println("    TESTED : " + nbTested + "(" + pcTested +"%)");
+		//System.out.println("INTEGRATED : " + nbIntegrated + "(" + pcIntegrated +"%)");
+		
 		// recupère les ressources que l'on va copier vers le répertoire de sortie.
 		// récupère en inputStream et exporte dans un fichier.
 		// Assez artisanal pour l'instant mais répond aux besoins.
@@ -327,6 +374,8 @@ public class BusinessReport {
 				// PNG
 				"img/glyphicons-halflings-white.png",
 				"img/glyphicons-halflings.png",
+				"img/dolphin.png",
+				"img/export_excel.png",
 				// JS
 				"lib/bootstrap/js/bootstrap-affix.js",
 				"lib/bootstrap/js/bootstrap-alert.js",
@@ -387,9 +436,7 @@ public class BusinessReport {
 
 			StringBuffer jsonData = new StringBuffer("");
 
-
-			List<Line> sortedLines = new ArrayList<Line>(lines.values());
-			Collections.sort(sortedLines);
+			
 
 			for(Line l : sortedLines) {
 				if(l._rules.isEmpty()) {
@@ -410,6 +457,9 @@ public class BusinessReport {
 					}
 					if(l._status == StatusType.TESTED) {
 						statusStyle = "label-info";
+					}
+					if(l._status == StatusType.INTEGRATED) {
+						statusStyle = "label-inverse";
 					}
 
 					String line = MessageFormat.format(lineFormat, className, methodName, "", "", statusStyle, status);
@@ -440,6 +490,9 @@ public class BusinessReport {
 						if(l._status == StatusType.TESTED) {
 							statusStyle = "label-info";
 						}
+						if(l._status == StatusType.INTEGRATED) {
+							statusStyle = "label-inverse";
+						}
 
 						String line = MessageFormat.format(lineFormat, className, methodName, ruleName, version, statusStyle, status);
 
@@ -451,12 +504,51 @@ public class BusinessReport {
 
 			}
 
+			
+			/**********/
+			/** constitution de la barre **/
+			// si on a 0 pourcent alors, on n'affiche pas.
+			
+			StringBuilder barbuf = new StringBuilder();
+			
+			if(nbTodo > 0) {
+				barbuf.append("<!-- TODO -->\n");
+				barbuf.append("<div class=\"bar bar-danger\"  style=\"width: " + pcTodo + "%;\">" + nbTodo + "</div>\n");
+			}
+			
+			if(nbOngoing > 0) {
+				barbuf.append("<!-- ONGOING -->\n");
+				barbuf.append("<div class=\"bar bar-warning\"  style=\"width: " + pcOngoing + "%;\">" + nbOngoing + "</div>\n");
+			}
+			
+			if(nbDone > 0) {
+				barbuf.append("<!-- DONE -->\n");
+				barbuf.append("<div class=\"bar bar-success\"  style=\"width: " + pcDone + "%;\">" + nbDone + "</div>\n");
+			}
+			
+			if(nbTested > 0) {
+				barbuf.append("<!-- TESTED -->\n");
+				barbuf.append("<div class=\"bar bar-info\"  style=\"width: " + pcTested + "%;\">" + nbTested + "</div>\n");
+			}
+			
+			if(nbIntegrated > 0) {
+				barbuf.append("<!-- INTEGRATED -->\n");
+				barbuf.append("<div class=\"bar bar-inverse\"  style=\"width: " + pcIntegrated + "%;\">" + nbIntegrated + "</div>\n");
+			}
+			
+			
+			/** ***********/
+			/** constitution de la légende **/
+			// en dur pour l'instant		
+			
+			
 
 			String content = sb.toString();
 
 			//System.out.println(content);
 
 			content = content.replace("{{DATA}}", jsonData.toString());
+			content = content.replace("{{PROGRESSBAR}}", barbuf.toString());
 
 			String date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
 			content = content.replace("{{DATE}}", date);

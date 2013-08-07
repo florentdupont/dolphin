@@ -18,4 +18,7 @@ public enum StatusType {
 	
 	/** terminé et testé */
 	TESTED,
+	
+	/** testé et intégré */
+	INTEGRATED
 }

@@ -78,24 +78,44 @@
 <body>
 
 
-<header class="jumbotron subhead" id="overview">
-  <div class="container">
-    <h1>Dolphin</h1>
-    <p class="lead">Suivi de d&eacute;veloppement des r&egrave;gles m&eacute;tier</p>
-    
-  </div>
-</header>
+	<header class="jumbotron subhead" id="overview">
+		<div class="container">
+			<h1><img src="img/dolphin.png"> Dolphin</h1>
+			<div class="row-fluid">
+				<div class="span11">
+					<p class="lead">Tra&ccedil;abilité et suivi de d&eacute;veloppement des r&egrave;gles m&eacute;tier</p>
+				</div>
+				<div class="span1">
+					<a href="export.xls"><img src="img/export_excel.png" class="img-polaroid" title="Exporter au format XLS" ></a>
+				</div>
+			</div>
+		</div>
+	</header>
 
 
   
 <div class="container">
 
 
-<div class="progress">
-  <div class="progress-bar progress-bar-success" style="width: 35%"></div>
-  <div class="progress-bar progress-bar-warning" style="width: 20%"></div>
-  <div class="progress-bar progress-bar-danger" style="width: 10%"></div>
-</div>
+	<div class="well well-small">
+
+		<div class="progress">
+			{{PROGRESSBAR}}
+		</div>
+
+		<dl class="dl-horizontal">
+			<dt><span class="label label-important">TODO</span></dt>
+			<dd><small>M&eacute;thode en attente d'impl&eacute;mentation.</small></dd>
+			<dt><span class="label label-warning">ONGOING</span></dt>
+			<dd> <small>M&eacute;thode en cours d'impl&eacute;mentation.</small></dd>
+			<dt><span class="label label-success">DONE</span></dt>
+			<dd><small>M&eacute;thode impl&eacute;ment&eacute;e.</small></dd>
+			<dt><span class="label label-info">TESTED</span></dt>
+			<dd><small>M&eacute;thode test&eacute;e unitairement.</small></dd>
+			<dt><span class="label label-inverse">INTEGRATED</span></dt>
+			<dd><small>M&eacute;thode validée avec tests d'int&eacute;grations.</small></dd>
+		</dl>
+	</div>
 
 
     <!-- DATAGRID -->
