@@ -35,7 +35,7 @@ public class TestAnalyzer {
 		String export = userdir + File.separator + "target" + File.separator + "export";
 			
 		
-		DolphinAnalyzer analyzer = new DolphinAnalyzer(jarPaths, "com.dolphin.test", export, "html", true);
+		DolphinAnalyzer analyzer = new DolphinAnalyzer(jarPaths, "com.dolphin.test.fake", export, "html", true);
 		analyzer.analyseClasses();
 		
 	}

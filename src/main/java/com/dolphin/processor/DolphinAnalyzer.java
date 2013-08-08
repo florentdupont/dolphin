@@ -31,12 +31,16 @@ public class DolphinAnalyzer {
 	/** liste des chemins de JAR à scanner */
 	private List<URL> jarPaths;
 	
+	/** prefixe à scanner*/
 	private String namespacePrefixFilter;
 
+	/** répertoire d'export*/
 	private String logPath;
 	
+	/** mode debug */
 	private boolean debug;
 	
+	/** type d'export */
 	private String type;
 	
 	
@@ -51,9 +55,6 @@ public class DolphinAnalyzer {
 	}
 	
 	
-	/**
-	 * 
-	 */
 	public void analyseClasses() {
 		
 		System.out.println(jarPaths);
@@ -207,15 +208,17 @@ public class DolphinAnalyzer {
 						@SuppressWarnings("unchecked")
 						List<String> versions = (List<String>) an.values.get(3);
 						// je me base sur les ids
+						String version = "N/A";
 						for(int i=0; i < ids.size(); i++) {
 							
 							String id = ids.get(i);
-							String version = "N/A";
+							
 							try {
 								version = versions.get(i);	
 							}catch (IndexOutOfBoundsException e) {
-								e.printStackTrace();
-								version = "N/A";
+								//e.printStackTrace();
+								//version = "N/A";
+								// si c'est pas renseigné, alors on prend la valeur précédente. 
 							}
 									
 							businessReport.addLine(classname, methodname, id, version);

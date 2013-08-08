@@ -43,66 +43,7 @@ public class BusinessReport {
 	/** NOT AVAILABLE */
 	public static final String NA = "";
 
-	/**
-	 * Une ligne du rapport
-	 * @author flo
-	 */
-	class Line implements Comparable<Line>{
-		Method _method;
-		List<Rule> _rules = new ArrayList<Rule>();
-		StatusType _status;
-
-		Line(Method method, String rule, String version) {
-			_method = method;
-			_rules.add(new Rule(rule, version));
-		}
-
-		Line(Method method) {
-			_method = method;
-		}
-
-		Line(Method method, StatusType status) {
-			_method = method;
-			_status = status;
-		}
-
-		@Override
-		public int compareTo(Line o) {
-			return _method._classname.compareTo(o._method._classname);
-		}
-
-	}
-
-	class Method {
-		String _classname;
-		String _methodname;
-
-		Method(String classname, String methodname) {
-			this._classname = classname;
-			this._methodname = methodname;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			Method other = (Method)obj;
-			return other._classname.equals(_classname) && other._methodname.equals(_methodname);
-		}
-
-		@Override
-		public int hashCode() {
-			return _classname.hashCode() + _methodname.hashCode();
-		}
-	}
-
-	class Rule {
-		String _name;
-		String _version;
-
-		public Rule(String name, String version) {
-			_name = name;
-			_version = version;
-		}
-	}
+	
 
 	/**
 	 * Chaque ligne est indexé sur son nom
@@ -114,8 +55,7 @@ public class BusinessReport {
 	}
 
 	public void addLine(String classname, String methodname, String rule, String version) {
-		//System.out.println(classname + " " + methodname + " " + rule + " " + version);
-		BusinessReport.Method method = new BusinessReport.Method(classname, methodname);
+		Method method = new Method(classname, methodname);
 		if(lines.containsKey(method)) {
 			lines.get(method)._rules.add(new Rule(rule, version));
 		}
@@ -126,8 +66,7 @@ public class BusinessReport {
 	}
 
 	public void addLine(String classname, String methodname, StatusType status) {
-		//System.out.println(classname + " " + methodname + " " + status);
-		BusinessReport.Method method = new BusinessReport.Method(classname, methodname);
+		Method method = new Method(classname, methodname);
 		if(lines.containsKey(method)) {
 			lines.get(method)._status = status;
 		}
@@ -137,7 +76,7 @@ public class BusinessReport {
 	}
 
 	public boolean hasDevStatus(String classname, String methodname) {
-		BusinessReport.Method method = new BusinessReport.Method(classname, methodname);
+		Method method = new Method(classname, methodname);
 		if(lines.containsKey(method)) {
 			return lines.get(method)._status != null;
 		}
@@ -201,7 +140,6 @@ public class BusinessReport {
 
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = wb.createSheet("results");
-
 
 
 		int rownum = 0;
@@ -310,7 +248,8 @@ public class BusinessReport {
 	}
 
 	/**
-	 * 
+	 * Ici, on fait un suivi par ligne. Une ligne correspond à une opération sur laquelle est apposée : 
+	 * un DevelopmentStatus ou un BusinessRule
 	 * @param path
 	 */
 	public void writeToHtml(String path) {
@@ -329,24 +268,24 @@ public class BusinessReport {
 		for(Line l : sortedLines) {
 			
 			if(l._status == StatusType.TODO) {
-				nbTodo += l._rules.size() == 0 ? 1 : l._rules.size();
+				nbTodo ++;
 			}
 			if(l._status == StatusType.ONGOING) {
-				nbOngoing += l._rules.size() == 0 ? 1 : l._rules.size();
+				nbOngoing ++;
 			}
 			if(l._status == StatusType.DONE) {
-				nbDone += l._rules.size() == 0 ? 1 : l._rules.size();
+				nbDone ++;
 			}
 			if(l._status == StatusType.TESTED) {
-				nbTested += l._rules.size() == 0 ? 1 : l._rules.size();
+				nbTested ++;
 			}
 			if(l._status == StatusType.INTEGRATED) {
-				nbIntegrated += l._rules.size() == 0 ? 1 : l._rules.size();
+				nbIntegrated ++;
 			}
 		}
 		
 		
-		int nbTotal = nbTodo + nbOngoing + nbDone + nbTested;
+		int nbTotal = sortedLines.size();
 		
 		// pourcentage à la louche
 		int pcTodo    = (int) (nbTodo * 100.0/ nbTotal);
@@ -354,12 +293,6 @@ public class BusinessReport {
 		int pcDone    = (int) (nbDone * 100.0/ nbTotal);
 		int pcTested  = (int) (nbTested * 100.0/ nbTotal);
 		int pcIntegrated  = 100 - pcTodo - pcOngoing - pcDone - pcTested;
-		
-		//System.out.println("      TODO : " + nbTodo + "(" + pcTodo +"%)");
-		//System.out.println("   ONGOING : " + nbOngoing + "(" + pcOngoing +"%)");
-		//System.out.println("      DONE : " + nbDone + "(" + pcDone +"%)");
-		//System.out.println("    TESTED : " + nbTested + "(" + pcTested +"%)");
-		//System.out.println("INTEGRATED : " + nbIntegrated + "(" + pcIntegrated +"%)");
 		
 		// recupère les ressources que l'on va copier vers le répertoire de sortie.
 		// récupère en inputStream et exporte dans un fichier.
@@ -436,9 +369,8 @@ public class BusinessReport {
 
 			StringBuffer jsonData = new StringBuffer("");
 
-			
-
 			for(Line l : sortedLines) {
+				// s'il n'y a pas des règle apposée
 				if(l._rules.isEmpty()) {
 
 					String className = l._method._classname;
@@ -469,37 +401,46 @@ public class BusinessReport {
 					jsonData.append("} ,\n");
 				}
 				else {
-					for(Rule r : l._rules) {
-
-						String className = l._method._classname;
-						String methodName = l._method._methodname;
-						String ruleName = r._name;
-						String version = r._version;
-						String status = l._status.toString();
-
-						String statusStyle = "label-success";
-						if(l._status == StatusType.DONE) {
-							statusStyle = "label-success";
-						}
-						if(l._status == StatusType.ONGOING) {
-							statusStyle = "label-warning";
-						}
-						if(l._status == StatusType.TODO) {
-							statusStyle = "label-important";
-						}
-						if(l._status == StatusType.TESTED) {
-							statusStyle = "label-info";
-						}
-						if(l._status == StatusType.INTEGRATED) {
-							statusStyle = "label-inverse";
-						}
-
-						String line = MessageFormat.format(lineFormat, className, methodName, ruleName, version, statusStyle, status);
-
-						jsonData.append("{");
-						jsonData.append(line);
-						jsonData.append("} ,\n");
+					// s'il y'a des règles
+					
+					String className = l._method._classname;
+					String methodName = l._method._methodname;
+					
+					String status = l._status.toString();
+					
+					String statusStyle = "label-success";
+					if(l._status == StatusType.DONE) {
+						statusStyle = "label-success";
 					}
+					if(l._status == StatusType.ONGOING) {
+						statusStyle = "label-warning";
+					}
+					if(l._status == StatusType.TODO) {
+						statusStyle = "label-important";
+					}
+					if(l._status == StatusType.TESTED) {
+						statusStyle = "label-info";
+					}
+					if(l._status == StatusType.INTEGRATED) {
+						statusStyle = "label-inverse";
+					}
+					
+					String ruleName = "";
+					String version = "";
+					// REFACTOR
+					for(Rule r : l._rules) {
+						ruleName += r._name + ", ";
+						version += r._version + ", ";
+					}
+					
+					ruleName = ruleName.substring(0, ruleName.length()-2);
+					version = version.substring(0, version.length()-2);
+					
+					String line = MessageFormat.format(lineFormat, className, methodName, ruleName, version, statusStyle, status);
+
+					jsonData.append("{");
+					jsonData.append(line);
+					jsonData.append("} ,\n");
 				}
 
 			}
@@ -537,16 +478,9 @@ public class BusinessReport {
 			}
 			
 			
-			/** ***********/
-			/** constitution de la légende **/
-			// en dur pour l'instant		
-			
-			
-
 			String content = sb.toString();
 
-			//System.out.println(content);
-
+			content = content.replace("{{NBMETHOD}}", ""+nbTotal);
 			content = content.replace("{{DATA}}", jsonData.toString());
 			content = content.replace("{{PROGRESSBAR}}", barbuf.toString());
 
