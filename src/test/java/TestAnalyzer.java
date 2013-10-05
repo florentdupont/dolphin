@@ -36,7 +36,7 @@ public class TestAnalyzer {
 			
 		
 		DolphinAnalyzer analyzer = new DolphinAnalyzer(jarPaths, "com.dolphin.test.fake", export, "html", true);
-		analyzer.analyseClasses();
+		analyzer.analyzeClasses();
 		
 	}
 	

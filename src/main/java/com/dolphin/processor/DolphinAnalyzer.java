@@ -18,6 +18,10 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.dolphin.api.StatusType;
 import com.dolphin.processor.debug.MyClassVisitor;
+import com.dolphin.processor.metamodel.Method;
+import com.dolphin.processor.metamodel.MethodRepository;
+import com.dolphin.processor.metamodel.Rule;
+import com.dolphin.processor.metamodel.RuleRepository;
 
 /**
  * Analyseur d'annotations.
@@ -55,7 +59,7 @@ public class DolphinAnalyzer {
 	}
 	
 	
-	public void analyseClasses() {
+	public void analyzeClasses() {
 		
 		System.out.println(jarPaths);
 		System.out.println(namespacePrefixFilter);
@@ -187,7 +191,11 @@ public class DolphinAnalyzer {
 					// Dans arrs[1] : valeur du statusType que l'on peux récupérer sur l'énumération
 					StatusType status = StatusType.valueOf(arrs[1]);
 					
-					businessReport.addLine(classname, methodname, status);
+					//
+					// businessReport.addLine(classname, methodname, status);
+					Method m = MethodRepository.instance().create(classname, methodname);
+					
+					m.setStatus(status);
 				}
 				
 
@@ -221,15 +229,9 @@ public class DolphinAnalyzer {
 								// si c'est pas renseigné, alors on prend la valeur précédente. 
 							}
 									
-							businessReport.addLine(classname, methodname, id, version);
-							
-							// s'il n'as pas déjà un devstatus, alors, on lui ajoute celui par défaut
-							if(!businessReport.hasDevStatus(classname, methodname)) {
-								
-								// sinon j'en met un par défaut
-								businessReport.addLine(classname, methodname, StatusType.TODO);
-								
-							}
+							Method m = MethodRepository.instance().create(classname, methodname);
+							Rule rule = RuleRepository.instance().create(id, version);
+							m.addRule(rule);
 						}
 					
 					}
@@ -242,7 +244,7 @@ public class DolphinAnalyzer {
 	
 	
 	/**
-	 *  ici, on va vérifier qu'un nom "brut" comme Lcom/dolphin/BusinessRule;
+	 *  ici, on vérifie qu'un nom "brut" comme Lcom/dolphin/BusinessRule;
 	 *  est correspond à une classe d'annotation BusinessRule.
 	 *  
 	 *  Pour garder l'indépendance avec l'API, notamment pour les projets qui ne souhaitent pas que 

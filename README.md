@@ -146,4 +146,4 @@ Pour que le plugin soit utilisable en mode préfixe, il faut ajouter les lignes 
 </pluginGroups>
 ```
 
-Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:1.2:dolphin```    
+Sans ces lignes dans le settings.xml, le plugin serait toutefois appelable avec la commande ```mvn package com.dolphin:dolphin-maven-plugin:1.4:dolphin```    

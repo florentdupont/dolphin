@@ -8,11 +8,8 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -25,6 +22,10 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 
 import com.dolphin.api.StatusType;
+import com.dolphin.processor.metamodel.Method;
+import com.dolphin.processor.metamodel.MethodRepository;
+import com.dolphin.processor.metamodel.Rule;
+import com.dolphin.processor.metamodel.RuleRepository;
 
 /**
  *
@@ -45,46 +46,6 @@ public class BusinessReport {
 
 	
 
-	/**
-	 * Chaque ligne est indexé sur son nom
-	 */
-	private Map<Method, Line> lines = new HashMap<Method, Line>();
-
-	public BusinessReport() {
-
-	}
-
-	public void addLine(String classname, String methodname, String rule, String version) {
-		Method method = new Method(classname, methodname);
-		if(lines.containsKey(method)) {
-			lines.get(method)._rules.add(new Rule(rule, version));
-		}
-		else {
-			lines.put(method, new Line(method, rule, version));	
-		}
-
-	}
-
-	public void addLine(String classname, String methodname, StatusType status) {
-		Method method = new Method(classname, methodname);
-		if(lines.containsKey(method)) {
-			lines.get(method)._status = status;
-		}
-		else {
-			lines.put(method, new Line(method, status));	
-		}
-	}
-
-	public boolean hasDevStatus(String classname, String methodname) {
-		Method method = new Method(classname, methodname);
-		if(lines.containsKey(method)) {
-			return lines.get(method)._status != null;
-		}
-		return false;
-	}
-
-
-
 	public void writeToCSV(String path) {
 
 		File file = new File(path, "export.csv");
@@ -93,17 +54,15 @@ public class BusinessReport {
 			// on flush le fichier s'il exsite;
 			FileUtils.writeStringToFile(file, "", false);
 
-			List<Line> sortedLines = new ArrayList<Line>(lines.values());
-			Collections.sort(sortedLines);
-
-			for(Line l : sortedLines) {
-				if(l._rules.isEmpty()) {
-					String data = l._method._classname + ";" + l._method._methodname + ";" + " ; ;" + l._status.toString() + "\n";
+		
+			for(Method m : MethodRepository.instance().findAll()) {
+				if(!m.hasImplementedRule()) {
+					String data = m.getOwner() + ";" + m.getName() + ";" + " ; ;" + m.getStatus() + "\n";
 					FileUtils.writeStringToFile(file, data, true);
 				}
 				else {
-					for(Rule r : l._rules) {
-						String data = l._method._classname + ";" + l._method._methodname + ";" +r._name + ";" + r._version + ";"+ l._status.toString() + "\n";
+					for(Rule r : m.getImplementedRules()) {
+						String data = m.getOwner() + ";" + m.getName() + ";" +r.getName() + ";" + r.getVersion() + ";"+ m.getStatus() + "\n";
 						FileUtils.writeStringToFile(file, data, true);
 					}
 				}
@@ -116,20 +75,27 @@ public class BusinessReport {
 
 	public void writeToConsole() {
 
-		List<Line> sortedLines = new ArrayList<Line>(lines.values());
-		Collections.sort(sortedLines);
-
-		for(Line l : sortedLines) {
-			if(l._rules.isEmpty()) {
-				String data = l._method._classname + ";" + l._method._methodname + ";" + " ; ;" + l._status.toString();
-				System.out.println(data);
+		/*System.out.println("METHODS POINT OF VIEW : ");
+		for(Method m : MethodRepository.instance().findAll()) {
+			System.out.println(m);
+			for(Rule r : m.getImplementedRules()) {
+				System.out.println("  " + r);
 			}
-			else {
-				for(Rule r : l._rules) {
-					String data = l._method._classname + ";" + l._method._methodname + ";" +r._name + ";" + r._version + ";"+ l._status.toString();
-					System.out.println(data);
-				}
+		}
+		
+		System.out.println("");
+		System.out.println("RULES POINT OF VIEW : ");
+		for(Rule r : RuleRepository.instance().findAll()) {
+			System.out.println(r);
+			for(Method m : r.getImplementedBy()) {
+				System.out.println("  " + m);
 			}
+			
+			System.out.println("general status : "  + r.getGeneralStatus());
+		}*/
+		
+		for(Method m : MethodRepository.instance().findAllByStatus(StatusType.DONE)) {
+			System.out.println(m);
 		}
 	}
 
@@ -160,20 +126,19 @@ public class BusinessReport {
 		cell.setCellValue("Status");
 
 
-		List<Line> sortedLines = new ArrayList<Line>(lines.values());
-		Collections.sort(sortedLines);
+		
 
-		for(Line l : sortedLines) {
+		for(Method method : MethodRepository.instance().findAll()) {
 			rownum++;
 			row = sheet.createRow(rownum);
 
 			cell = row.createCell((short)0, HSSFCell.CELL_TYPE_STRING);
-			cell.setCellValue(l._method._classname);
+			cell.setCellValue(method.getOwner());
 
 			cell = row.createCell((short)1, HSSFCell.CELL_TYPE_STRING);
-			cell.setCellValue(l._method._methodname);
+			cell.setCellValue(method.getName());
 
-			if(l._rules.isEmpty()) {
+			if(!method.hasImplementedRule()) {
 
 				cell = row.createCell((short)2, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue("");
@@ -183,35 +148,45 @@ public class BusinessReport {
 
 			}
 			else {
-				for(Rule r : l._rules) {
-
-					cell = row.createCell((short)2, HSSFCell.CELL_TYPE_STRING);
-					cell.setCellValue(r._name);
-
-					cell = row.createCell((short)3, HSSFCell.CELL_TYPE_STRING);
-					cell.setCellValue(r._version);
-
-
+				
+				
+				String ruleName = "";
+				String version = "";
+				
+				for(Rule rule : method.getImplementedRules()) {
+					ruleName += rule.getName() + ", ";
+					version +=  rule.getName() + ", ";
 				}
+				
+				ruleName = ruleName.substring(0, ruleName.length()-2);
+				version = version.substring(0, version.length()-2);
+				
+				
+				cell = row.createCell((short)2, HSSFCell.CELL_TYPE_STRING);
+				cell.setCellValue(ruleName);
+
+				cell = row.createCell((short)3, HSSFCell.CELL_TYPE_STRING);
+				cell.setCellValue(version);
+				
 			}
 
 			cell = row.createCell((short)4, HSSFCell.CELL_TYPE_STRING);
-			cell.setCellValue(l._status.toString());
+			cell.setCellValue(method.getStatus().toString());
 			HSSFCellStyle cellStyle = wb.createCellStyle();
 
-			if (l._status == StatusType.INTEGRATED) {
+			if (method.getStatus() == StatusType.INTEGRATED) {
 				cellStyle.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
 			}
-			else if(l._status == StatusType.TESTED) {
+			else if(method.getStatus() == StatusType.TESTED) {
 				cellStyle.setFillForegroundColor(HSSFColor.LIGHT_BLUE.index);
 			}
-			else if (l._status == StatusType.DONE) {
+			else if (method.getStatus() == StatusType.DONE) {
 				cellStyle.setFillForegroundColor(HSSFColor.LIGHT_GREEN.index);
 			}
-			else if (l._status == StatusType.ONGOING) {
+			else if (method.getStatus() == StatusType.ONGOING) {
 				cellStyle.setFillForegroundColor(HSSFColor.LIGHT_ORANGE.index);
 			}
-			else if (l._status == StatusType.TODO) {
+			else if (method.getStatus() == StatusType.TODO) {
 				cellStyle.setFillForegroundColor(HSSFColor.RED.index);
 			}
 			
@@ -254,45 +229,41 @@ public class BusinessReport {
 	 */
 	public void writeToHtml(String path) {
 		
-		List<Line> sortedLines = new ArrayList<Line>(lines.values());
-		Collections.sort(sortedLines);
+		
+		// pour l'ecriture dans le rapport HTML, on a pour l'instant un point de vue 
+		// pas méthode.
+		// class -> methode -> liste des règles implémentées -> avancement
+		
+		MethodRepository repo = MethodRepository.instance();
+		
+		// nombre de méthodes
+		int nbTotal = repo.count();
+		System.out.println("nb count : " + nbTotal);
+		
+		int nbTodo       = repo.findAllByStatus(StatusType.TODO).size(); 
+		int nbOngoing    = repo.findAllByStatus(StatusType.ONGOING).size(); 
+		int nbDone       = repo.findAllByStatus(StatusType.DONE).size(); 
+		int nbTested     = repo.findAllByStatus(StatusType.TESTED).size();
+		int nbIntegrated = repo.findAllByStatus(StatusType.INTEGRATED).size();
+		
 				
-		
-		int nbTodo       = 0; 
-		int nbOngoing    = 0; 
-		int nbDone       = 0; 
-		int nbTested     = 0;
-		int nbIntegrated = 0;
-		
-		
-		for(Line l : sortedLines) {
+		// ici je dois m'assurer d'avoir un pourcentage == 100%
 			
-			if(l._status == StatusType.TODO) {
-				nbTodo ++;
-			}
-			if(l._status == StatusType.ONGOING) {
-				nbOngoing ++;
-			}
-			if(l._status == StatusType.DONE) {
-				nbDone ++;
-			}
-			if(l._status == StatusType.TESTED) {
-				nbTested ++;
-			}
-			if(l._status == StatusType.INTEGRATED) {
-				nbIntegrated ++;
-			}
-		}
+		double pcTodo    = (nbTodo * 100.0/ nbTotal);
+		double pcOngoing = (nbOngoing *100.0/ nbTotal);
+		double pcDone    = (nbDone * 100.0/ nbTotal);
+		double pcTested  = (nbTested * 100.0/ nbTotal);
+		double pcIntegrated  = (nbIntegrated * 100.0/ nbTotal);
 		
+				
+		double totpc = pcTodo + pcOngoing + pcDone + pcTested + pcIntegrated;
 		
-		int nbTotal = sortedLines.size();
+		System.out.println("total : " + totpc);
 		
-		// pourcentage à la louche
-		int pcTodo    = (int) (nbTodo * 100.0/ nbTotal);
-		int pcOngoing = (int) (nbOngoing *100.0/ nbTotal);
-		int pcDone    = (int) (nbDone * 100.0/ nbTotal);
-		int pcTested  = (int) (nbTested * 100.0/ nbTotal);
-		int pcIntegrated  = 100 - pcTodo - pcOngoing - pcDone - pcTested;
+	//	double[] values = {pcTodo, pcOngoing, pcDone, pcTested, pcIntegrated};
+	//	int[] stretchedVals = roundAndStretch(values);
+					
+		
 		
 		// recupère les ressources que l'on va copier vers le répertoire de sortie.
 		// récupère en inputStream et exporte dans un fichier.
@@ -369,28 +340,28 @@ public class BusinessReport {
 
 			StringBuffer jsonData = new StringBuffer("");
 
-			for(Line l : sortedLines) {
+			for(Method method : MethodRepository.instance().findAll()) {
 				// s'il n'y a pas des règle apposée
-				if(l._rules.isEmpty()) {
+				if(!method.hasImplementedRule()) {
 
-					String className = l._method._classname;
-					String methodName = l._method._methodname;
-					String status = l._status.toString();
+					String className = method.getOwner();
+					String methodName = method.getName();
+					String status = method.getStatus().toString();
 
 					String statusStyle = "label-success";
-					if(l._status == StatusType.DONE) {
+					if(method.getStatus() == StatusType.DONE) {
 						statusStyle = "label-success";
 					}
-					if(l._status == StatusType.ONGOING) {
+					if(method.getStatus() == StatusType.ONGOING) {
 						statusStyle = "label-warning";
 					}
-					if(l._status == StatusType.TODO) {
+					if(method.getStatus() == StatusType.TODO) {
 						statusStyle = "label-important";
 					}
-					if(l._status == StatusType.TESTED) {
+					if(method.getStatus() == StatusType.TESTED) {
 						statusStyle = "label-info";
 					}
-					if(l._status == StatusType.INTEGRATED) {
+					if(method.getStatus() == StatusType.INTEGRATED) {
 						statusStyle = "label-inverse";
 					}
 
@@ -403,34 +374,33 @@ public class BusinessReport {
 				else {
 					// s'il y'a des règles
 					
-					String className = l._method._classname;
-					String methodName = l._method._methodname;
-					
-					String status = l._status.toString();
+					String className = method.getOwner();
+					String methodName = method.getName();
+					String status = method.getStatus().toString();
 					
 					String statusStyle = "label-success";
-					if(l._status == StatusType.DONE) {
+					if(method.getStatus() == StatusType.DONE) {
 						statusStyle = "label-success";
 					}
-					if(l._status == StatusType.ONGOING) {
+					if(method.getStatus() == StatusType.ONGOING) {
 						statusStyle = "label-warning";
 					}
-					if(l._status == StatusType.TODO) {
+					if(method.getStatus() == StatusType.TODO) {
 						statusStyle = "label-important";
 					}
-					if(l._status == StatusType.TESTED) {
+					if(method.getStatus() == StatusType.TESTED) {
 						statusStyle = "label-info";
 					}
-					if(l._status == StatusType.INTEGRATED) {
+					if(method.getStatus() == StatusType.INTEGRATED) {
 						statusStyle = "label-inverse";
 					}
 					
 					String ruleName = "";
 					String version = "";
 					// REFACTOR
-					for(Rule r : l._rules) {
-						ruleName += r._name + ", ";
-						version += r._version + ", ";
+					for(Rule rule : method.getImplementedRules()) {
+						ruleName += rule.getName() + ", ";
+						version +=  rule.getName() + ", ";
 					}
 					
 					ruleName = ruleName.substring(0, ruleName.length()-2);
@@ -446,8 +416,8 @@ public class BusinessReport {
 			}
 
 			
-			/**********/
-			/** constitution de la barre **/
+			
+			// barre
 			// si on a 0 pourcent alors, on n'affiche pas.
 			
 			StringBuilder barbuf = new StringBuilder();
@@ -495,7 +465,86 @@ public class BusinessReport {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
 
+	}
+	
+	/**
+	 * 
+	 * arrondi chaque valeur (double->int) pour faire en sorte que chaque valeur entière arrondi corresponde
+	 * à la somme globale avant l'arrondi.
+	 *  fait en sorte que réparti le reste de la somme pour que la valeur attendu soit exactement la somme
+	 * de tous les valeurs arrondies.
+	 * 
+	 * Exemple : 
+	 * [46.15, 15.38, 15.38, 15.38, 7.69] -> en arrondissant, j'aurai : [46,15,15,15,7] = 98.
+	 * il reste donc 2 que je dois répartir sur les valeurs restantes.
+	 * je prend donc les valeurs dont la partie décimale initiale est la plus haute [46,15,15,15,8] = 99
+	 * il me reste 1, je continue avec le reste...
+	 * Dans mon cas, plusieurs valeurs sont identique, je prend arbitrairement la première pour avoir [46, 16, 15, 15, 8]]
+	 * 
+	 * Chaque case ne peux être incrémentée qu'une fois.
+	 * 
+	 * 
+	 * @param initialValues
+	 * @param expectedSum
+	 * @return
+	 */
+	int[] roundAndStretch(double[] initialValues) {
+		
+		int length = initialValues.length;
+		
+		double initialSum = 0.0; // somme de toutes les valeurs initiales
+		int expectedSum = 0;     // valeur entière attendue : correspond à initialSum arrondie en int
+		int sum = 0;             // somme de toutes les valeurs initiales castées
+		
+		
+		// resultat finaux 
+		int[] result = new int[length];
+		boolean[] alreadyDispatched = new boolean[length];
+		
+		
+		for(int i = 0; i < initialValues.length; i++) {
+			
+			// Casting to an int implicitly drops any decimal
+			result[i] = (int) initialValues[i];
+			
+			initialSum += initialValues[i];
+			sum += result[i];
+		}
+		
+		
+		expectedSum = (int) initialSum;
+		System.out.println("expected sum : " + expectedSum);
+		System.out.println("actual rounded sum : " + sum);
+		
+		// calcule le reste de la différence entre la somme initiale arrondie, et la somme des valeurs arrondies.
+		int rest =  expectedSum - sum;
+		
+		while(rest != 0) {
+			
+			// je trouve la case avec la partie décimale la plus haute
+			double maxDec = -1.00;
+			int maxIndex = -1;
+			
+			for(int i = 0; i < initialValues.length; i++) {
+				double dec = initialValues[i] - ((int)initialValues[i]);
+				// je ne prend pas en compte la valeur si elle a déjà été incrémentée.
+				if(!alreadyDispatched[i] && dec > maxDec) {
+					maxDec = dec;
+					maxIndex = i;
+				}
+			}
+			System.out.println("found value to add 1 to : " + initialValues[maxIndex]);
+			result[maxIndex] = result[maxIndex] + 1;
+			alreadyDispatched[maxIndex] = true;
+			rest--;
+			
+		}
+		
+		
+		return result;
 	}
 
 }

@@ -179,7 +179,7 @@ public class DolphinMojo extends AbstractMojo {
         	getLog().info("MODE DEBUG");
         
         final DolphinAnalyzer analyzer = new DolphinAnalyzer(urls, namespaceprefix, path, type, debug);
-	    analyzer.analyseClasses();
+	    analyzer.analyzeClasses();
         
     }
 }
