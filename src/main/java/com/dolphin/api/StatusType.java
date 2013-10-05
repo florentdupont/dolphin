@@ -1,10 +1,11 @@
 package com.dolphin.api;
 
 /**
- * Status de développement.
+ * Status de développement. 
+ * Valeurs utilisées dans les annotations {@link DevelopmentStatus}
  * 
  * @author Florent Dupont
- *
+ * @see DevelopmentStatus
  */
 public enum StatusType {
 	/** A faire */
