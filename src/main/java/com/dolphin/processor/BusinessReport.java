@@ -258,7 +258,7 @@ public class BusinessReport {
 				
 		double totpc = pcTodo + pcOngoing + pcDone + pcTested + pcIntegrated;
 		
-		System.out.println("total : " + totpc);
+		// System.out.println("total : " + totpc);
 		
 	//	double[] values = {pcTodo, pcOngoing, pcDone, pcTested, pcIntegrated};
 	//	int[] stretchedVals = roundAndStretch(values);
@@ -400,7 +400,7 @@ public class BusinessReport {
 					// REFACTOR
 					for(Rule rule : method.getImplementedRules()) {
 						ruleName += rule.getName() + ", ";
-						version +=  rule.getName() + ", ";
+						version +=  rule.getVersion() + ", ";
 					}
 					
 					ruleName = ruleName.substring(0, ruleName.length()-2);
