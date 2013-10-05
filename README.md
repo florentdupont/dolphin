@@ -4,6 +4,7 @@ Dolphin
 Dolphin est un plugin **Maven** d'analyse d'annotations de suivi des exigences métier dans le code Java.
 Il permet d'assurer la traçabilité de règles métier entre les SFD et le code. Il permet de connaitre quelle méthode implémente une règle métier particulère et le niveau d'avancement de celle-ci.
 
+Une démo en live du résultat est disponible à cette adresse : http://dolphindemo.flo.cloudbees.net/
 
 Annotation du code
 ------------------
