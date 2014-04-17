@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+    <parent>
+		<groupId>com.dolphin</groupId>
+		<artifactId>dolphin-parent</artifactId>
+		<version>1.5</version>
+    </parent>
+
+	<artifactId>dolphin-maven-plugin</artifactId>
+	<packaging>maven-plugin</packaging>
+    <version>1.5</version>
+	
+	<name>Dolphin Maven Plugin</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<compilerVersion>1.6</compilerVersion>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+					    
+		</plugins>
+	</build>
+	
+	<dependencies>
+
+
+        <dependency>
+            <groupId>com.dolphin</groupId>
+            <artifactId>dolphin-api</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dolphin</groupId>
+            <artifactId>dolphin-processor</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+		<!-- MOJO -->
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>2.0</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.0</version>
+			<scope>compile</scope>
+		</dependency>
+
+
+
+	</dependencies>
+</project>

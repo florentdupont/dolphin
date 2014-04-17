@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="bootstrapDemoApp" id="top">
+<head>
+  <meta charset="utf-8">
+  <title>Dolphin (angular JS prototype)</title>
+
+
+  <!--include jQuery first cf issue : https://github.com/angular-ui/ng-grid/issues/579 -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+
+  <script src="ui-bootstrap-tpls-0.6.0.js"></script>
+  <script src="assets/plunker.js"></script>
+  <script src="assets/app.js"></script>
+  
+  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+
+  <link rel="stylesheet" href="assets/rainbow.css"/>
+  <link rel="stylesheet" href="assets/demo.css"/>
+
+  <link rel="author" href="https://github.com/angular-ui/bootstrap/graphs/contributors">
+
+
+  <!-- pour le ng-grid -->
+  <link rel="stylesheet" type="text/css" href="http://angular-ui.github.com/ng-grid/css/ng-grid.css" />
+  <script type="text/javascript" src="http://angular-ui.github.com/ng-grid/lib/ng-grid.debug.js"></script>
+
+</head>
+
+
+
+<!-- approche qui s'avère intéressante mais on perd en fonctionnalité par rapport à l'existant.
+
+- Pas de possibilité de faire apparaitre de libellés sur les stackPanels
+- le ng-grid ne comporte pas de système de pagination en natif. Il serait possible d'en mettre un en ajoutant le composant
+  paging de bootstrap angular, mais il faut le prendre en compte manuellement.
+- la hauteur du tableau ne se réduit pas automatiquement. La taille doit obligatoirement être spécifiée. Ce qui est problématique
+  si l'on souhaite fixer le nombre d'éléments qui seront affichés.
+- Le ng-grid n'inclue pas de système de recherche comme il existe actuellement dans le tableau fuel UX. 
+
+de plus : 
+ - Pas encore compatible avec la nouvelle version de Bootstrap (3.x)
+
+La plus-value n'est donc pas vraiment là par rapport à l'implémentation actuelle en pur bootstrap/fuelUX. 
+Je commite quand même ce prototype dans GIT pour une future utilisation.
+
+L'approche nécessiterait trop de travail pour un résultat équivalent et sans grande valeur ajoutée.
+
+-->
+
+<body class="ng-cloak" ng-controller="MainCtrl">
+
+
+  <div role="main">
+
+    <div class="container">
+
+      <section id="progressbar">
+        <div class="page-header">
+          <h1>Progressbar</h1>
+        </div>
+        <div class="row">
+          <div class="span6">
+            <div ng-controller="ProgressCtrl" class="well">
+
+              <h2>Stacked</h2>
+              <p><strong>{{methodCount}}</strong> méthodes suivies et analysées</p>
+
+              <progress percent="stacked">test</progress>
+
+              <dl class="dl-horizontal">
+                <dt><span class="label label-important">TODO</span></dt>
+                <dd><small>M&eacute;thode en attente d'impl&eacute;mentation.</small></dd>
+                <dt><span class="label label-warning">ONGOING</span></dt>
+                <dd> <small>M&eacute;thode en cours d'impl&eacute;mentation.</small></dd>
+                <dt><span class="label label-success">DONE</span></dt>
+                <dd><small>M&eacute;thode impl&eacute;ment&eacute;e.</small></dd>
+                <dt><span class="label label-info">TESTED</span></dt>
+                <dd><small>M&eacute;thode test&eacute;e unitairement.</small></dd>
+
+              </dl>
+
+
+            </div>
+          </div>
+        </div>
+        <hr>
+
+        <div ng-controller="TabsDemoCtrl">
+
+         <tabset>
+          <tab heading="Vue par Méthode"> 
+             <div class="gridStyle" ng-grid="gridOptions" ></div>
+          </tab>
+          <tab heading="Vue par Règle" ><div class="gridStyle">Indisponible pour le moment</div></tab>
+          <tab heading="Vue par Classe"><div class="gridStyle">Indisponible pour le moment</div></tab>
+
+       </tabset>
+
+       <hr />
+
+      
+
+     </div>
+
+   </section>
+
+ </div>
+
+
+</body>
+</html>
